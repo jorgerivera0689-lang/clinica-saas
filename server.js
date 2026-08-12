@@ -4,19 +4,17 @@ const admin = require('firebase-admin');
 const QRCode = require('qrcode');
 
 // --- 1. CONFIGURACIÓN DE FIREBASE ---
-const serviceAccount = require('./serviceAccountKey.json');
+let serviceAccount;
+
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+} else {
+  serviceAccount = require('./serviceAccountKey.json');
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
-
-const db = admin.firestore();
-const auth = admin.auth();
-
-const app = express();
-app.use(express.json());
-app.use(cors());
-
 
 // --- 2. MIDDLEWARES DE SEGURIDAD Y MULTI-TENANCY ---
 const verifyToken = async (req, res, next) => {
