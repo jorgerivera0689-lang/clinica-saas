@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Médico - SaaS Clínicas</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2, h3 { color: #333; }
+        label { display: block; margin-top: 10px; font-weight: bold; color: #555; }
+        input, textarea { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #28a745; color: white; border: none; padding: 10px 15px; margin-top: 15px; border-radius: 5px; cursor: pointer; font-size: 15px; }
+        button:hover { background-color: #218838; }
+        .section { margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Panel de Control - Médico</h2>
+        
+        <div class="section">
+            <h3>Registrar Expediente Clínico y Receta</h3>
+            <form id="medicalRecordForm">
+                <label for="patientId">ID del Paciente:</label>
+                <input type="text" id="patientId" required placeholder="ID único del paciente">
+
+                <label for="diagnosis">Diagnóstico:</label>
+                <input type="text" id="diagnosis" required placeholder="Diagnóstico principal">
+
+                <label for="generalChemistry">Química General / Laboratorios:</label>
+                <textarea id="generalChemistry" rows="2" placeholder="Resultados relevantes..."></textarea>
+
+                <label for="prescription">Receta Médica / Medicamentos:</label>
+                <textarea id="prescription" rows="2" placeholder="Medicamentos, dosis y frecuencia..."></textarea>
+
+                <label for="notes">Notas de Evolución:</label>
+                <textarea id="notes" rows="2" placeholder="Observaciones adicionales..."></textarea>
+
+                <button type="submit">Guardar en Expediente</button>
+            </form>
+            <p id="mensaje" style="font-weight: bold; margin-top: 10px;"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('medicalRecordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const patientId = document.getElementById('patientId').value;
+            const diagnosis = document.getElementById('diagnosis').value;
+            const generalChemistry = document.getElementById('generalChemistry').value;
+            const prescription = document.getElementById('prescription').value;
+            const notes = document.getElementById('notes').value;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/doctor/medical-record', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer TU_TOKEN_DE_AUTENTICACION'
+                    },
+                    body: JSON.stringify({ patientId, diagnosis, generalChemistry, prescription, notes })
+                });
+
+                const data = await response.json();
+                const mensaje = document.getElementById('mensaje');
+
+                if (data.success) {
+                    mensaje.style.color = 'green';
+                    mensaje.innerText = data.message;
+                } else {
+                    mensaje.style.color = 'red';
+                    mensaje.innerText = 'Error: ' + data.error;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Citas - Clínica SaaS</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { color: #333; text-align: center; }
+        label { display: block; margin-top: 15px; font-weight: bold; color: #555; }
+        input, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; background-color: #007bff; color: white; border: none; padding: 12px; margin-top: 20px; border-radius: 5px; font-size: 16px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        #resultado { margin-top: 20px; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>Agendar Cita Médica</h2>
+        <form id="appointmentForm">
+            <label for="patientId">ID de Paciente:</label>
+            <input type="text" id="patientId" required placeholder="Ej. Tu ID generado por QR">
+
+            <label for="specialty">Especialidad:</label>
+            <select id="specialty" required>
+                <option value="Medicina General">Medicina General</option>
+                <option value="Cardiología">Cardiología</option>
+                <option value="Pediatría">Pediatría</option>
+                <option value="Endocrinología">Endocrinología</option>
+            </select>
+
+            <label for="date">Fecha:</label>
+            <input type="date" id="date" required>
+
+            <label for="time">Hora:</label>
+            <input type="time" id="time" required>
+
+            <button type="submit">Solicitar Cita</button>
+        </form>
+        <div id="resultado"></div>
+    </div>
+
+    <script>
+        document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const patientId = document.getElementById('patientId').value;
+            const specialty = document.getElementById('specialty').value;
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/patients/book-appointment', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('authToken'),
+                    },
+                    body: JSON.stringify({ patientId, specialty, date, time })
+                });
+
+                const data = await response.json();
+                const resultadoDiv = document.getElementById('resultado');
+                
+                if (data.success) {
+                    resultadoDiv.style.color = 'green';
+                    resultadoDiv.innerText = data.message;
+                } else {
+                    resultadoDiv.style.color = 'red';
+                    resultadoDiv.innerText = 'Error: ' + data.error;
+                }
+            } catch (error) {
+                console.error('Error de conexión:', error);
+            }
+        });
+    </script>
+</body>
+</html>
