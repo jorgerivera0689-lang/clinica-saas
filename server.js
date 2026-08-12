@@ -16,6 +16,15 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
 
+const db = admin.firestore();
+const auth = admin.auth();
+
+// --- INICIALIZAR EXPRESS (Requerido antes de registrar rutas) ---
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+
 // --- 2. MIDDLEWARES DE SEGURIDAD Y MULTI-TENANCY ---
 const verifyToken = async (req, res, next) => {
   const token = req.headers.authorization?.split('Bearer ')[1];
@@ -235,8 +244,8 @@ app.post('/api/doctor/medical-record', verifyToken, async (req, res) => {
       recordId: recordRef.id,
       doctorId,
       diagnosis,
-      generalChemistry, // Química sanguínea / laboratorios
-      prescription,     // Receta médica
+      generalChemistry,
+      prescription,
       notes,
       createdAt: new Date()
     });
